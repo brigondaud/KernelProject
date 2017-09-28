@@ -1,4 +1,5 @@
 #include <cpu.h>
+#include <stdio.h>
 #include <screen.h>
 
 // on peut s'entrainer a utiliser GDB avec ce code de base
@@ -18,8 +19,11 @@ uint32_t fact(uint32_t n)
 
 void kernel_start(void)
 {
-    efface_ecran();
-    place_curseur(2 ,2);
+    erase_screen();
+    cursor_move(0, 0);
+    for (int i=0; i < SCREEN_HEIGHT*SCREEN_WIDTH+10; i++) {
+      printf("a");
+    }
     while (1) {
         // cette fonction arrete le processeur
         hlt();

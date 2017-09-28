@@ -1,5 +1,9 @@
 #include <screen.h>
 
+/* Information about the current cursor position */
+static uint32_t current_cursor_line;
+static uint32_t current_cursor_column;
+
 uint16_t *ptr_mem(uint32_t lig, uint32_t col)
 {
   uint16_t *ptr_mem;
@@ -7,7 +11,7 @@ uint16_t *ptr_mem(uint32_t lig, uint32_t col)
   return ptr_mem;
 }
 
-void ecrit_car(uint32_t lig, uint32_t col, char c, uint8_t text_color, uint8_t back_color)
+void write_char(uint32_t lig, uint32_t col, char c, uint8_t text_color, uint8_t back_color)
 {
   uint16_t *screen_ptr;
   screen_ptr = ptr_mem(lig, col);
@@ -22,16 +26,16 @@ void ecrit_car(uint32_t lig, uint32_t col, char c, uint8_t text_color, uint8_t b
   *screen_ptr |= format << 8;
 }
 
-void efface_ecran(void)
+void erase_screen(void)
 {
   for (uint8_t i = 0; i < SCREEN_HEIGHT; i++) {
     for (uint8_t j = 0; j < SCREEN_WIDTH; j++) {
-      ecrit_car(i, j, ' ', DEFAULT_TEXT_COLOR, DEFAULT_BACK_COLOR);
+      write_char(i, j, ' ', DEFAULT_TEXT_COLOR, DEFAULT_BACK_COLOR);
     }
   }
 }
 
-void place_curseur(uint32_t lig, uint32_t col)
+void cursor_move(uint32_t lig, uint32_t col)
 {
   /* Changing the current cursor position */
   current_cursor_line = lig;
@@ -47,35 +51,84 @@ void place_curseur(uint32_t lig, uint32_t col)
 
 }
 
-void traite_car(char c)
+void scroll(void)
 {
-  switch (c) {
+  /* Moving the lines in memory*/
+  memmove(ptr_mem(0, 0), ptr_mem(1, 0), (SCREEN_HEIGHT-1)*SCREEN_WIDTH*sizeof(uint16_t));
+  /* Erasing the last line */
+  for (uint8_t i = 0; i < SCREEN_WIDTH; i++) {
+    write_char(SCREEN_WIDTH-1, i, ' ', DEFAULT_TEXT_COLOR, DEFAULT_BACK_COLOR);
+  }
+}
 
-    case '\b':
-      if (current_cursor_column != 0) {
-        current_cursor_column -= 1;
-        place_curseur(current_cursor_line, current_cursor_column);
-      }
-      break;
-
-    case '\t':
+void handle_char(char c)
+{
+  /* If a control char */
+  if (c < 32 || c == 127) {
+    switch (c) {
       
+      case '\b':
+        if (current_cursor_column != 0) {
+          current_cursor_column -= 1;
+          cursor_move(current_cursor_line, current_cursor_column);
+        }
+        break;
+  
+      case '\t':
+        /* The new position */
+        current_cursor_column = (current_cursor_column / TAB_LENGTH + 1) * TAB_LENGTH;
+        if (current_cursor_column > SCREEN_WIDTH) { /* If out of the screen */
+          current_cursor_column = SCREEN_WIDTH - 1;
+        }
+        cursor_move(current_cursor_line, current_cursor_column);
+        break;
 
-      break;
+      case '\n':
+        current_cursor_column = 0;
+        if (current_cursor_line == SCREEN_WIDTH - 1) {
+          scroll();
+          current_cursor_line = SCREEN_HEIGHT - 1;
+        } else {
+          current_cursor_line += 1;
+        }
+        cursor_move(current_cursor_line, current_cursor_column);
+  
+        break;
+  
+      case '\f':
+        erase_screen();
+        current_cursor_column = 0;
+        current_cursor_line = 0;
+        cursor_move(current_cursor_line, current_cursor_column);
+  
+        break;
+  
+      case '\r':
+        current_cursor_column = 0;
+        cursor_move(current_cursor_line, current_cursor_column);
+        break;
 
-    case '\n':
+      default:
+        /* The other control char are not handled */
+        break;
+  
+    }
+  } else {
+    /* Handle as a normal char */
+    uint32_t prev_cursor_line = current_cursor_line;
+    uint32_t prev_cursor_column = current_cursor_column;
 
-      break;
-
-    case '\f':
-
-      break;
-
-    case '\r':
-
-      break;
-
-    default:
-
+    if (current_cursor_column == SCREEN_WIDTH - 1) {
+      current_cursor_column = 0;
+      if (current_cursor_line == SCREEN_HEIGHT - 1) {
+        scroll();
+      } else {
+        current_cursor_line += 1;
+      }
+    } else {
+      current_cursor_column += 1;
+    }
+    write_char(prev_cursor_line, prev_cursor_column, c, DEFAULT_TEXT_COLOR, DEFAULT_BACK_COLOR);
+    cursor_move(current_cursor_line, current_cursor_column);
   }
 }
