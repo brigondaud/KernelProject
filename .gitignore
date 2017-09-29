@@ -1,2 +1,5 @@
 #Object
 src/*.o
+
+#The kernel
+src/kernel.bin

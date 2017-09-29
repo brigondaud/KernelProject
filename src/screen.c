@@ -36,7 +36,7 @@ void erase_screen(void)
 }
 
 void cursor_move(uint32_t lig, uint32_t col)
-{
+{ // TODO: debugg
   /* Changing the current cursor position */
   current_cursor_line = lig;
   current_cursor_column = col;
@@ -47,7 +47,7 @@ void cursor_move(uint32_t lig, uint32_t col)
   outb((uint8_t)cursor_pos, DATA_CURSOR_PORT);
   /* Sending MS Byte */
   outb(0X0E, CMD_CURSOR_PORT);
-  outb((uint8_t)(cursor_pos<<8), DATA_CURSOR_PORT);
+  outb((uint8_t)(cursor_pos>>8), DATA_CURSOR_PORT);
 
 }
 
@@ -85,7 +85,7 @@ void handle_char(char c)
 
       case '\n':
         current_cursor_column = 0;
-        if (current_cursor_line == SCREEN_WIDTH - 1) {
+        if (current_cursor_line == SCREEN_HEIGHT - 1) {
           scroll();
           current_cursor_line = SCREEN_HEIGHT - 1;
         } else {
@@ -97,15 +97,12 @@ void handle_char(char c)
   
       case '\f':
         erase_screen();
-        current_cursor_column = 0;
-        current_cursor_line = 0;
-        cursor_move(current_cursor_line, current_cursor_column);
+        cursor_move(0, 0);
   
         break;
   
       case '\r':
-        current_cursor_column = 0;
-        cursor_move(current_cursor_line, current_cursor_column);
+        cursor_move(current_cursor_line, 0);
         break;
 
       default:
@@ -121,6 +118,7 @@ void handle_char(char c)
     if (current_cursor_column == SCREEN_WIDTH - 1) {
       current_cursor_column = 0;
       if (current_cursor_line == SCREEN_HEIGHT - 1) {
+        current_cursor_line = SCREEN_HEIGHT - 1;
         scroll();
       } else {
         current_cursor_line += 1;

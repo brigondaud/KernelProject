@@ -19,11 +19,11 @@ uint32_t fact(uint32_t n)
 
 void kernel_start(void)
 {
-    erase_screen();
-    cursor_move(0, 0);
-    for (int i=0; i < SCREEN_HEIGHT*SCREEN_WIDTH+10; i++) {
-      printf("a");
+    printf("\f");
+    for (int i=0; i < SCREEN_HEIGHT - 1; i++) {
+      printf("\n");
     }
+    printf("Ecriture sur la dernière ligne");
     while (1) {
         // cette fonction arrete le processeur
         hlt();
