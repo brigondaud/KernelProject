@@ -22,7 +22,7 @@ void init_handler_IT(int32_t num_IT, void (*handler)(void))
 
 void hide_IRQ(uint32_t num_IRQ, uint8_t hide)
 {
-  /* Current hidden IRQs */   
+  /* Current hidden IRQs */
   uint8_t IRQ_array = inb(CMD_PIC_PORT);
   /* Setting the bit num_IRQ to given hide value */
   hide = hide << num_IRQ;
@@ -34,8 +34,6 @@ void hide_IRQ(uint32_t num_IRQ, uint8_t hide)
 
 void kernel_start(void)
 {
-  /* Unhides the IT to the CPU */
-  sti();
   /* Unhides the 0 IRQ to the PIC to receive PIT signal */
   hide_IRQ(0, 0);
   
@@ -43,6 +41,9 @@ void kernel_start(void)
   init_handler_IT(32, traitant_IT_32);
 
   pit_init();
+
+  /* Unhides the IT to the CPU */
+  sti();
 
   while (1) {
       // cette fonction arrete le processeur
