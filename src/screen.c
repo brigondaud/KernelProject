@@ -4,6 +4,8 @@
 static uint32_t current_cursor_line;
 static uint32_t current_cursor_column;
 
+//TODO: memorize the color of the text and the background
+
 uint16_t *ptr_mem(uint32_t lig, uint32_t col)
 {
   uint16_t *ptr_mem;
@@ -36,7 +38,7 @@ void erase_screen(void)
 }
 
 void cursor_move(uint32_t lig, uint32_t col)
-{ // TODO: debugg
+{
   /* Changing the current cursor position */
   current_cursor_line = lig;
   current_cursor_column = col;
