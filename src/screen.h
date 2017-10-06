@@ -1,9 +1,9 @@
 #ifndef __SCREEN_H__
 #define __SCREEN_H__
 
-#include <inttypes.h>
-#include <string.h>
-#include <cpu.h>
+#include "inttypes.h"
+#include "string.h"
+#include "cpu.h"
 
 #define FIRST_VID_ADDR 0xB8000
 #define SCREEN_WIDTH 80
@@ -12,6 +12,8 @@
 #define DATA_CURSOR_PORT 0x3D5
 #define DEFAULT_TEXT_COLOR 15
 #define DEFAULT_BACK_COLOR 0
+#define UPTIME_TEXT_COLOR 0
+#define UPTIME_BACK_COLOR 7
 #define TAB_LENGTH 8
 
 /*
@@ -44,5 +46,8 @@ void handle_char(char c);
 * Scrolls the screens by one line
 */
 void scroll(void);
+
+/* Writes the uptime of the top right corner of the screen */
+void uptime_write(char *uptime);
 
 #endif

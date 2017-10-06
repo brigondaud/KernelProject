@@ -1,4 +1,4 @@
-#include <screen.h>
+#include "screen.h"
 
 /* Information about the current cursor position */
 static uint32_t current_cursor_line;
@@ -130,5 +130,14 @@ void handle_char(char c)
     }
     write_char(prev_cursor_line, prev_cursor_column, c, DEFAULT_TEXT_COLOR, DEFAULT_BACK_COLOR);
     cursor_move(current_cursor_line, current_cursor_column);
+  }
+}
+
+void uptime_write(char *uptime)
+{
+  /* The uptime format is HH:MM:SS */
+  char *c = uptime;
+  for (int i = 0; i < 8; i++, c++) {
+    write_char(0, SCREEN_WIDTH-1-i, *c, UPTIME_TEXT_COLOR, UPTIME_BACK_COLOR);
   }
 }
