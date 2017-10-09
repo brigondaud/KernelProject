@@ -138,6 +138,6 @@ void uptime_write(char *uptime)
   /* The uptime format is HH:MM:SS */
   char *c = uptime;
   for (int i = 0; i < 8; i++, c++) {
-    write_char(0, SCREEN_WIDTH-1-i, *c, UPTIME_TEXT_COLOR, UPTIME_BACK_COLOR);
+    write_char(0, SCREEN_WIDTH-8+i, *c, UPTIME_TEXT_COLOR, UPTIME_BACK_COLOR);
   }
 }

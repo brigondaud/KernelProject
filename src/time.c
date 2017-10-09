@@ -11,13 +11,12 @@ void tic_PIT(void)
 {
   outb(CMD_HANDLE_DATA, CMD_HANDLE_PORT);
   tics_elapsed ++;
-  if (tics_elapsed == TICS_PER_SECOND) {
+  if (tics_elapsed == CLOCKFREQ) {
     seconds_elapsed++;
     tics_elapsed = 0;
+    sprintf(uptime, "%02u:%02u:%02u", seconds_elapsed/3600, (seconds_elapsed/60)%60, seconds_elapsed % 60);
+    uptime_write(uptime);
   }
-
-  sprintf(uptime, "%02u:%02u:%02u", seconds_elapsed/3600, seconds_elapsed/60, seconds_elapsed);
-  uptime_write(uptime);
 }
 
 void pit_init(void)
