@@ -5,6 +5,7 @@
 #include "inttypes.h"
 #include "string.h"
 #include "cpu.h"
+#include "screen.h"
 
 #define CMD_HANDLE_PORT 0x20
 #define CMD_HANDLE_DATA 0x20

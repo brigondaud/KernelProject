@@ -17,6 +17,7 @@ void tic_PIT(void)
   }
 
   sprintf(uptime, "%02u:%02u:%02u", seconds_elapsed/3600, seconds_elapsed/60, seconds_elapsed);
+  uptime_write(uptime);
 }
 
 void pit_init(void)

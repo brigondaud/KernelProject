@@ -6,13 +6,13 @@
 void init_handler_IT(int32_t num_IT, void (*handler)(void))
 {  
   int32_t *handler_addr;
-  handler_addr = (int32_t*)(FIRST_VECTOR_HANDLER_ADDR + num_IT - 1);
+  handler_addr = (int32_t*)(FIRST_VECTOR_HANDLER_ADDR + num_IT*8);
   
-  int32_t first_word = 0x00000000;
+  int32_t first_word;
   first_word = ((int32_t)handler) & 0x0000FFFF;
   first_word |= KERNEL_CS << 16;
 
-  int32_t second_word = 0x00000000;
+  int32_t second_word;
   second_word = ((int32_t)handler) & 0xFFFF0000;
   second_word |= (int32_t)0x8E00;
 
@@ -38,7 +38,7 @@ void kernel_start(void)
   hide_IRQ(0, 0);
   
   /* Registering the handler to display uptime */
-  init_handler_IT(32, traitant_IT_32);
+  init_handler_IT(32, &traitant_IT_32);
 
   pit_init();
 
