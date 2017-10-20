@@ -2,6 +2,9 @@
 #define __PROCESS_H__
 
 #define ESP_IDX 1
+#define NAME_LENGTH 255
+#define REGS 5
+#define STACK_SIZE 512
 #define MAX_PROC 2
 
 #include "cpu.h"
@@ -28,10 +31,10 @@ typedef enum {
  */
 struct process {
   int pid;
-  char name[255];
+  char name[NAME_LENGTH];
   proc_state state;
-  int32_t register_save[5];
-  int32_t execution_stack[512];
+  int32_t register_save[REGS];
+  int32_t execution_stack[STACK_SIZE];
 };
 
 /**

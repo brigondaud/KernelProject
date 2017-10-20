@@ -4,7 +4,7 @@
 #include "process.h"
 
 /**
- * Round-Robin function to chose the working process
+ * Scheduling function based on the round-robin policy
  */
 void schedule(void);
 

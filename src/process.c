@@ -39,7 +39,8 @@ void init_process(void)
     .state = WAITING
   };
 
-  process_table[1].execution_stack[511] = (int)proc1;
-  process_table[1].register_save[ESP_IDX] = (int)(&process_table[1].execution_stack[511]);
+  process_table[1].execution_stack[STACK_SIZE-1] = (int)proc1;
+  process_table[1].register_save[ESP_IDX] = (int)(&process_table[1].execution_stack[STACK_SIZE-1]);
+  
   working_process = &process_table[0];
 }
