@@ -4,7 +4,10 @@
 #define ESP_IDX 1
 #define MAX_PROC 2
 
+#include "cpu.h"
+#include "stdio.h"
 #include "inttypes.h"
+#include "scheduler.h"
 
 /**
  * Context switch: saves and restores contexts for two processes
@@ -51,6 +54,19 @@ void idle(void);
  */
 void proc1(void);
 
+/**
+ * Init the processes (stack)
+ */
 void init_process(void);
+
+/**
+ * Get the current process pid
+ */
+int get_pid(void);
+
+/**
+ * Get the current process name
+ */
+char* get_name(void);
 
 #endif

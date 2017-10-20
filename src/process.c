@@ -1,25 +1,28 @@
-#include "cpu.h"
-#include "stdio.h"
 #include "process.h"
 
 
 void idle(void)
 {
-  for (int i = 0; i < 3; i++) {
-    printf("[idle] je tente de passer la main a proc1...\n");
-    ctx_sw(process_table[0].register_save, process_table[1].register_save);
-    printf("[idle] proc1 m’a redonne la main\n");
-  }
-  printf("[idle] je bloque le systeme\n");
-  hlt();
-}
-void proc1(void)
-{
   for (;;) {
-    printf("[proc1] idle m’a donne la main\n");
-    printf("[proc1] je tente de lui la redonner...\n");
-    ctx_sw(process_table[1].register_save, process_table[0].register_save);
+    printf("[%s] pid = %i\n", get_name(), get_pid());
+    schedule();
   }
+}
+void proc1(void) {
+  for (;;) {
+    printf("[%s] pid = %i\n", get_name(), get_pid());
+    schedule();
+  }
+}
+
+int get_pid()
+{
+  return working_process->pid;
+}
+
+char* get_name()
+{
+  return working_process->name;
 }
 
 void init_process(void)
@@ -38,4 +41,5 @@ void init_process(void)
 
   process_table[1].execution_stack[511] = (int)proc1;
   process_table[1].register_save[ESP_IDX] = (int)(&process_table[1].execution_stack[511]);
+  working_process = &process_table[0];
 }
