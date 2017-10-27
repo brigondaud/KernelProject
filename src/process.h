@@ -5,7 +5,7 @@
 #define NAME_LENGTH 255
 #define REGS 5
 #define STACK_SIZE 512
-#define MAX_PROC 2
+#define MAX_PROC 8
 
 #include "cpu.h"
 #include "stdio.h"
@@ -30,17 +30,18 @@ typedef enum {
  * allocated memory space
  */
 struct process {
-  int pid;
+  int32_t pid;
   char name[NAME_LENGTH];
   proc_state state;
   int32_t register_save[REGS];
   int32_t execution_stack[STACK_SIZE];
+  struct process *next;
 };
 
 /**
  * Table containing all processes
  */
-struct process process_table[MAX_PROC];
+struct process *process_table[MAX_PROC];
 
 /**
  * Pointer to the working process
@@ -48,14 +49,30 @@ struct process process_table[MAX_PROC];
 struct process *working_process;
 
 /**
+ * The last pid created
+ */
+int32_t last_pid;
+
+/**
+ * FIFO for waiting processes
+ */
+struct process *last_waiting;
+struct process *head_waiting;
+
+/**
+ * Get the next process in the waiting queue
+ */
+struct process *pop_waiting(void);
+
+/**
+ * Add a process to the waiting queue
+ */
+void push_waiting(struct process *proc);
+
+/**
  * Idle process
  */
 void idle(void);
-
-/**
- * proc1 process
- */
-void proc1(void);
 
 /**
  * Init the processes (stack)
@@ -71,5 +88,10 @@ int get_pid(void);
  * Get the current process name
  */
 char* get_name(void);
+
+/**
+ * Creates a process with a given pid and a name
+ */
+int32_t create_process(void (*function)(void), char *name);
 
 #endif

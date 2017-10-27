@@ -3,8 +3,12 @@
 void schedule(void)
 {
   /* Switching policy: round-robin: current_pid + 1)[MAX_PROC] */
-  int next_pid = (working_process->pid + 1)%MAX_PROC;
-  struct process *next_process = &process_table[next_pid];
+  int next_pid;
+  do {
+    next_pid = (working_process->pid + 1)%MAX_PROC;
+  } while(!process_table[next_pid]);
+  
+  struct process *next_process = process_table[next_pid];
 
   working_process->state = WAITING;
   next_process->state = RUNNING;
