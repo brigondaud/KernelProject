@@ -27,3 +27,7 @@ void pit_init(void)
   /* Sending MSB */
   outb((uint8_t)((QUARTZ / CLOCKFREQ)>>8), CLOCK_FREQ_DATA_PORT);
 }
+
+uint32_t get_time(){
+  return seconds_elapsed;
+}

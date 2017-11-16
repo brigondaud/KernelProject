@@ -22,6 +22,9 @@ void pit_init(void);
 /* Handles the interruption and prints the uptime */
 extern void tic_PIT(void);
 
-/*  */
+/**
+ * Returns the time elapsed in seconds
+ */
+extern uint32_t get_time();
 
 #endif
