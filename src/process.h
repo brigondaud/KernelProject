@@ -11,6 +11,7 @@
 #include "stdio.h"
 #include "inttypes.h"
 #include "scheduler.h"
+#include "time.h"
 
 /**
  * Context switch: saves and restores contexts for two processes
@@ -22,7 +23,8 @@ extern void ctx_sw(int *former_context, int *new_context);
  */
 typedef enum {
   RUNNING,
-  WAITING
+  WAITING,
+  SLEEPING
 } proc_state;
 
 /**
@@ -36,6 +38,7 @@ struct process {
   int32_t register_save[REGS];
   int32_t execution_stack[STACK_SIZE];
   struct process *next;
+  int32_t waking_time;
 };
 
 /**
@@ -54,20 +57,31 @@ struct process *working_process;
 int32_t last_pid;
 
 /**
+ * Put a process in sleep for sec seconds.
+ */
+void sleep(uint32_t sec);
+
+/**
  * FIFO for waiting processes
  */
-struct process *last_waiting;
+struct process *tail_waiting;
 struct process *head_waiting;
 
 /**
- * Get the next process in the waiting queue
+ * FIFO for sleeping processes
  */
-struct process *pop_waiting(void);
+struct process *tail_sleeping;
+struct process *head_sleeping;
 
 /**
- * Add a process to the waiting queue
+ * Get the next process in the given queue
  */
-void push_waiting(struct process *proc);
+struct process *pop_waiting(struct process *head_queue);
+
+/**
+ * Add a process to the given queue
+ */
+void push_waiting(struct process *proc, struct process *tail_queue);
 
 /**
  * Idle process

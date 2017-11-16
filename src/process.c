@@ -1,67 +1,36 @@
 #include "process.h"
 #include "malloc.c.h"
 
-void idle(void)
+void idle()
 {
   for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
+    sti();
+    hlt();
+    cli();
   }
 }
-
-void proc0(void) {
+void proc1(void)
+{
   for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
+    printf("[temps = %u] processus %s pid = %i\n", get_time(),
+    get_name(), get_pid());
+    sleep(2);
   }
 }
-
-void proc1(void) {
+void proc2(void)
+{
   for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
+    printf("[temps = %u] processus %s pid = %i\n", get_time(),
+    get_name(), get_pid());
+    sleep(3);
   }
 }
-
-void proc2(void) {
+void proc3(void)
+{
   for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
-  }
-}
-
-void proc3(void) {
-  for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
-  }
-}
-
-void proc4(void) {
-  for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
-  }
-}
-
-void proc5(void) {
-  for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
-  }
-}
-
-void proc6(void) {
-  for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
-  }
-}
-
-void proc7(void) {
-  for (;;) {
-    printf("[%s] pid = %i\n", get_name(), get_pid());
-    schedule();
+    printf("[temps = %u] processus %s pid = %i\n", get_time(),
+    get_name(), get_pid());
+    sleep(5);
   }
 }
 
@@ -75,7 +44,7 @@ char* get_name()
   return working_process->name;
 }
 
-struct process *pop_waiting(void)
+struct process *pop_waiting(struct process *queue)
 {
   struct process *proc;
   if (head_waiting == last_waiting) {
@@ -95,7 +64,7 @@ struct process *pop_waiting(void)
   return proc;
 }
 
-void push_waiting(struct process *proc)
+void push_waiting(struct process *proc, struct process *tail_queue)
 {
   //TODO:
 }
@@ -112,7 +81,7 @@ int32_t create_process(void (*code)(void), char *name)
   proc->state = WAITING;
   proc->execution_stack[STACK_SIZE-1] = (int32_t)code;
   proc->register_save[ESP_IDX] = (int32_t)(&proc->execution_stack[STACK_SIZE-1]);
-
+  proc->waking_time = -1;
   process_table[last_pid] = proc;
   return last_pid;
 }
@@ -124,7 +93,7 @@ void init_process(void)
     char name[NAME_LENGTH];
     sprintf(name, "proc%d", i);
     int pid = create_process(proc0, name);
-    printf("%d\n", pid);
+    printf("Init of the process: %d\n", pid);
   }
   working_process = process_table[0];
 }
