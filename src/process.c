@@ -48,6 +48,10 @@ void sleep(uint32_t sec)
 {
   /* Set the waiking time for the working process */
   working_process->waking_time = get_time() + sec;
+  /* The process is put in the sleeping queue according to its awaking time. */
+  working_process->state = SLEEPING;
+  push_sleeping(&working_process);
+  schedule();
 }
 
 void push_sleeping(struct process **proc)
@@ -95,6 +99,7 @@ struct process* pop(struct process **tail, struct process **head)
       current = current->next;
     }
     proc = *head;
+    current->next = NULL;
     *head = current;
   }
   return proc;
