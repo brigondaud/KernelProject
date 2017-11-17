@@ -62,26 +62,31 @@ int32_t last_pid;
 void sleep(uint32_t sec);
 
 /**
- * FIFO for waiting processes
+ * FIFO for waiting processes.
  */
 struct process *tail_waiting;
 struct process *head_waiting;
 
 /**
- * FIFO for sleeping processes
+ * Priority queue of sleeping processes.
  */
 struct process *tail_sleeping;
 struct process *head_sleeping;
 
 /**
- * Get the next process in the given queue
+ * Push a sleeping process in the priority queue.
  */
-struct process *pop_waiting(struct process *head_queue);
+void push_sleeping(struct process **proc);
 
 /**
- * Add a process to the given queue
+ * Pushes the process in the waiting queue.
  */
-void push_waiting(struct process *proc, struct process *tail_queue);
+void push_waiting(struct process **proc);
+
+/**
+ * Pops the head of a queue.
+ */
+struct process* pop(struct process **tail, struct process **queue);
 
 /**
  * Idle process
@@ -102,6 +107,11 @@ int get_pid(void);
  * Get the current process name
  */
 char* get_name(void);
+
+/**
+ * Prints the pid, the name and the state of a process.
+ */
+void print_process(struct process *proc);
 
 /**
  * Creates a process with a given pid and a name

@@ -44,29 +44,66 @@ char* get_name()
   return working_process->name;
 }
 
-struct process *pop_waiting(struct process *queue)
+void sleep(uint32_t sec)
 {
-  struct process *proc;
-  if (head_waiting == last_waiting) {
-    proc = head_waiting;
-    head_waiting = NULL;
-    last_waiting = NULL;
-  } else {
-    struct process *head = head_waiting;
-    struct process *current = last_waiting;
-    while (current->next != head) {
-      current = current->next;
-    }
-    proc = head_waiting;
-    head_waiting = current;
-  }
-  proc->state = RUNNING;
-  return proc;
+  /* Set the waiking time for the working process */
+  working_process->waking_time = get_time() + sec;
 }
 
-void push_waiting(struct process *proc, struct process *tail_queue)
+void push_sleeping(struct process **proc)
 {
-  //TODO:
+  printf("\nInserting: %d\n", (*proc)->pid);
+  struct process *current = tail_sleeping;
+  if(current == NULL) {
+    tail_sleeping = *proc;
+    head_sleeping = *proc;
+  } else {
+    struct process *prec = current;
+    while(current != NULL && (*proc)->waking_time < current->waking_time) {
+      prec = current;
+      current = current->next;
+    }
+    prec->next = *proc;
+    if (!current) {
+      printf("At the end of the search, current is null\n");
+      head_sleeping = *proc;
+      head_sleeping->next = NULL;
+    } else {
+      (*proc)->next = current;
+      if (current == tail_sleeping) /* If proc is inserted in tail. */
+        tail_sleeping = *proc;
+    }
+  }
+  if (tail_sleeping)
+    print_process(tail_sleeping);
+  if (head_sleeping)
+    print_process(head_sleeping);
+}
+
+void push_waiting(struct process **proc)
+{
+  (*proc)->next = tail_waiting;
+  tail_waiting = *proc;
+  if(!head_waiting)
+    head_waiting = *proc;
+}
+
+struct process* pop(struct process **tail, struct process **head)
+{
+  struct process *proc = NULL;
+  if (*head == *tail) {
+    proc = *head;
+    *head = NULL;
+    *tail = NULL;
+  } else {
+    struct process *current = *tail;
+    while (current->next != *head) {
+      current = current->next;
+    }
+    proc = *head;
+    *head = current;
+  }
+  return proc;
 }
 
 int32_t create_process(void (*code)(void), char *name)
@@ -82,8 +119,20 @@ int32_t create_process(void (*code)(void), char *name)
   proc->execution_stack[STACK_SIZE-1] = (int32_t)code;
   proc->register_save[ESP_IDX] = (int32_t)(&proc->execution_stack[STACK_SIZE-1]);
   proc->waking_time = -1;
-  process_table[last_pid] = proc;
+  // process_table[last_pid] = proc;
+
+  /* Push the created process in the waiting queue. */
+  push_waiting(&proc);
   return last_pid;
+}
+
+void print_process(struct process *proc)
+{
+  if(!proc) {
+    printf("Process is null");
+  } else {
+    printf("Process: pid: %d, name: %s, state:%d (0: RUNNING, 1:WAITING, 2:SLEEPING)\n", proc->pid, proc->name, proc->state);
+  }
 }
 
 void init_process(void)
@@ -92,7 +141,7 @@ void init_process(void)
   for (int i = 0; i < 8; i++) {
     char name[NAME_LENGTH];
     sprintf(name, "proc%d", i);
-    int pid = create_process(proc0, name);
+    int pid = create_process(proc1, name);
     printf("Init of the process: %d\n", pid);
   }
   working_process = process_table[0];
