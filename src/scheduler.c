@@ -6,26 +6,24 @@
  */
 void schedule(void)
 {
-  /* Switching policy: round-robin: current_pid + 1)[MAX_PROC] */
-  // int next_pid;
-  // do {
-  //   next_pid = (working_process->pid + 1)%MAX_PROC;
-  // } while(!process_table[next_pid]);
-
-  // struct process *next_process = process_table[next_pid];
-
-  // working_process->state = WAITING;
-  // next_process->state = RUNNING;
-
-  // /* Store the last process which is needed to switch context */
-  // struct process *last_process = working_process;
-
-  // working_process = next_process;
-
-  /* Move all the awaken processes to the waiting procesq queue. */
-  //TODO:
+  /* Move all the awaken processes to the waiting process queue. */
+  struct process *current = head_sleeping;
+  while(current) {
+    if (current->waking_time < get_time()) {
+      current = pop(&tail_sleeping, &head_sleeping);
+      push_waiting(&current);
+    }
+  }
 
   /* Take the last waiting process and make it the working process */
+  struct process *new_working = pop(&tail_waiting, &head_waiting);
 
-  // ctx_sw(last_process->register_save, working_process->register_save);
+  /* Inverts the new working process and the last working process */
+  working_process->state = WAITING;
+  new_working->state = RUNNING;
+  push_waiting(&working_process);
+  struct process *last_process = working_process;
+  working_process = new_working;
+
+  ctx_sw(last_process->register_save, working_process->register_save);
 }
