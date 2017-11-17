@@ -52,7 +52,6 @@ void sleep(uint32_t sec)
 
 void push_sleeping(struct process **proc)
 {
-  printf("\nInserting: %d\n", (*proc)->pid);
   struct process *current = tail_sleeping;
   if(current == NULL) {
     tail_sleeping = *proc;
@@ -65,7 +64,6 @@ void push_sleeping(struct process **proc)
     }
     prec->next = *proc;
     if (!current) {
-      printf("At the end of the search, current is null\n");
       head_sleeping = *proc;
       head_sleeping->next = NULL;
     } else {
@@ -74,10 +72,6 @@ void push_sleeping(struct process **proc)
         tail_sleeping = *proc;
     }
   }
-  if (tail_sleeping)
-    print_process(tail_sleeping);
-  if (head_sleeping)
-    print_process(head_sleeping);
 }
 
 void push_waiting(struct process **proc)

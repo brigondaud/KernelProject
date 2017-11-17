@@ -14,20 +14,10 @@ void kernel_start(void)
 
   pit_init();
 
-  // /* Unhides the IT to the CPU */
-  sti();
-
-  // while (1) {
-  //     // cette fonction arrete le processeur
-  //     hlt();
-  // }
-
   /* Init processes structure */
   // init_process();
 
   /* Runing the default process */
-  // idle();
-  // test_waiting_queue();
-  test_sleeping_queue();
+  idle();
   
 }

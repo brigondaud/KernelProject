@@ -29,9 +29,9 @@ void test_sleeping_queue(void) {
     push_sleeping(&proc1);
     push_sleeping(&proc2);
     push_sleeping(&proc3);
-    struct process *proc2b = pop(&tail_waiting, &head_waiting);
-    struct process *proc3b = pop(&tail_waiting, &head_waiting);
-    struct process *proc1b = pop(&tail_waiting, &head_waiting);
+    struct process *proc2b = pop(&tail_sleeping, &head_sleeping);
+    struct process *proc3b = pop(&tail_sleeping, &head_sleeping);
+    struct process *proc1b = pop(&tail_sleeping, &head_sleeping);
     if(proc1b->pid == 1 &&
         proc2b->pid == 2 &&
         proc3b->pid == 3) {
