@@ -104,6 +104,11 @@ void init_process(void);
 int get_pid(void);
 
 /**
+ * Returns the process if found in the given queue with the given pid.
+ */
+struct process* get_process_in(struct process **queue, int32_t pid);
+
+/**
  * Get the current process name
  */
 char* get_name(void);

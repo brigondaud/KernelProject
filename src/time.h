@@ -6,6 +6,7 @@
 #include "string.h"
 #include "cpu.h"
 #include "screen.h"
+#include "scheduler.h"
 
 #define CMD_HANDLE_PORT 0x20
 #define CMD_HANDLE_DATA 0x20
@@ -19,7 +20,7 @@
 /* Init the PIT to PIT_SPEED */
 void pit_init(void);
 
-/* Handles the interruption and prints the uptime */
+/* Handles the interruption and prints the uptime, and calls the scheduler.*/
 extern void tic_PIT(void);
 
 /**

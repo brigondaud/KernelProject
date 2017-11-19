@@ -20,8 +20,8 @@ void schedule(void)
 
   /* Inverts the new working process and the last working process */
   working_process->state = WAITING;
-  new_working->state = RUNNING;
   push_waiting(&working_process);
+  new_working->state = RUNNING;
   struct process *last_process = working_process;
   working_process = new_working;
 

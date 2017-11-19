@@ -14,8 +14,8 @@ void kernel_start(void)
 
   pit_init();
 
-  /* Init processes structure */
-  // init_process();
+  /* Init all the processes that will be executed. */
+  init_process();
 
   /* Runing the default process */
   idle();

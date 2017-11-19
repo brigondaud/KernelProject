@@ -118,7 +118,6 @@ int32_t create_process(void (*code)(void), char *name)
   proc->execution_stack[STACK_SIZE-1] = (int32_t)code;
   proc->register_save[ESP_IDX] = (int32_t)(&proc->execution_stack[STACK_SIZE-1]);
   proc->waking_time = -1;
-  // process_table[last_pid] = proc;
 
   /* Push the created process in the waiting queue. */
   push_waiting(&proc);
@@ -137,11 +136,26 @@ void print_process(struct process *proc)
 void init_process(void)
 {
   last_pid = -1;
-  for (int i = 0; i < 8; i++) {
+  /* Array to the processes code to execute. */
+  void (*process_code[4])(void) = {idle, proc1, proc2, proc3};
+  for (int i = 0; i < 4; i++) {
     char name[NAME_LENGTH];
-    sprintf(name, "proc%d", i);
-    int pid = create_process(proc1, name);
-    printf("Init of the process: %d\n", pid);
+    if(i==0) {
+      sprintf(name, "idle");
+    }
+    else {
+      sprintf(name, "proc%d", i+1);
+    }
+    create_process(process_code[i], name);
   }
-  working_process = process_table[0];
+  working_process = get_process_in(&tail_waiting, 0);
+}
+
+struct process* get_process_in(struct process **queue, int32_t pid)
+{
+  struct process *current = *queue;
+  while(current && current->pid != pid){
+    current = current->next;
+  }
+  return current;
 }

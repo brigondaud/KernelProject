@@ -20,7 +20,7 @@ void init_handler_IT(int32_t num_IT, void (*handler)(void))
 void hide_IRQ(uint32_t num_IRQ, uint8_t hide)
 {
   /* Current hidden IRQs */
-  uint8_t IRQ_array = inb(CMD_PIC_PORT);
+  uint8_t IRQ_array = inb(CMD_PIC_PORT);  
   /* Setting the bit num_IRQ to given hide value */
   hide = hide << num_IRQ;
   IRQ_array = (IRQ_array & ~(1<<num_IRQ)) | (hide << num_IRQ);
