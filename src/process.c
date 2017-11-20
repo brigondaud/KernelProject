@@ -10,14 +10,18 @@ void idle()
     cli();
   }
 }
+
 void proc1(void)
 {
+  //  int32_t i = 0; i < 2; i++
   for (;;) {
     printf("[temps = %u] processus %s pid = %i\n", get_time(),
     get_name(), get_pid());
     sleep(2);
-  }
+    }
+  // end_process();
 }
+
 void proc2(void)
 {
   for (;;) {
@@ -45,67 +49,11 @@ char* get_name()
   return working_process->name;
 }
 
-void sleep(uint32_t sec)
-{
-  /* Set the waiking time for the working process */
-  working_process->waking_time = get_time() + sec;
-  /* The process is put in the sleeping queue according to its awaking time. */
-  working_process->state = SLEEPING;
-  push_sleeping(&working_process);
-  schedule();
-}
-
-void push_sleeping(struct process **proc)
-{
-  struct process *current = head_sleeping;
-  if(current == NULL) {
-    tail_sleeping = *proc;
-    head_sleeping = *proc;
-    return;
-  }
-
-  if((*proc)->waking_time < head_sleeping->waking_time) {
-    head_sleeping = *proc;
-    (*proc)->next = current;
-    return;
-  }
-
-  while(current != tail_sleeping && (*proc)->waking_time > current->waking_time) {
-    current = current->next;
-  }
-
-  current->next = *proc;
-  if (current == tail_sleeping) tail_sleeping = *proc;
-}
-
-void push_waiting(struct process **proc)
-{ 
-  if(!head_waiting) head_waiting = *proc;
-  if(tail_waiting) tail_waiting->next = *proc;
-  tail_waiting = *proc;
-}
-
-struct process* pop(struct process **tail, struct process **head)
-{
-  struct process *proc = *head;
-  
-  if(!*head) {
-    return NULL;
-  }
-
-  *head = (*head)->next;
-  if(!*head) {
-    *tail = NULL; 
-  }
-
-  return proc;  
-}
-
 int32_t create_process(void (*code)(void), char *name)
 {
   if(last_pid == MAX_PROC-1) // Can't create process anymore
     return -1;
-  
+
   last_pid++;
   struct process *proc = malloc(sizeof(struct process));
   proc->pid = last_pid;
@@ -147,13 +95,79 @@ void init_process(void)
 
   /* Idle as initial working process */
   working_process = pop(&tail_waiting, &head_waiting);
+  working_process->state = RUNNING;
 }
 
-struct process* get_process_in(struct process **queue, int32_t pid)
+void sleep(uint32_t sec)
 {
-  struct process *current = *queue;
-  while(current && current->pid != pid){
+  /* Set the waiking time for the working process */
+  working_process->waking_time = get_time() + sec;
+  /* The process is put in the sleeping queue according to its awaking time. */
+  working_process->state = SLEEPING;
+  push_sleeping(&working_process);
+  schedule();
+}
+
+void end_process(void)
+{
+  /* The working process must be added to the the list of dying process and will
+  be killed during the next scheduling. */
+  working_process->state = DYING;
+  push_dying(&working_process);
+}
+
+void push_sleeping(struct process **proc)
+{
+  (*proc)->next = NULL;
+  struct process *current = head_sleeping;
+  if(current == NULL) {
+    tail_sleeping = *proc;
+    head_sleeping = *proc;
+    return;
+  }
+
+  if((*proc)->waking_time < head_sleeping->waking_time) {
+    head_sleeping = *proc;
+    (*proc)->next = current;
+    return;
+  }
+
+  while(current != tail_sleeping && (*proc)->waking_time > current->waking_time) {
     current = current->next;
   }
-  return current;
+
+  current->next = *proc;
+  if (current == tail_sleeping) tail_sleeping = *proc;
+}
+
+void push_waiting(struct process **proc)
+{
+  (*proc)->next = NULL;
+  if(!head_waiting) head_waiting = *proc;
+  if(tail_waiting) tail_waiting->next = *proc;
+  tail_waiting = *proc;
+}
+
+void push_dying(struct process **proc)
+{
+  (*proc)->next = NULL;
+  if(!head_dying) head_dying = *proc;
+  if(tail_dying) tail_dying->next = *proc;
+  tail_dying = *proc;
+}
+
+struct process* pop(struct process **tail, struct process **head)
+{
+  struct process *proc = *head;
+
+  if(!proc) {
+    return NULL;
+  }
+
+  *head = (*head)->next;
+  if(!*head) {
+    *tail = NULL;
+  }
+
+  return proc;
 }

@@ -24,7 +24,8 @@ extern void ctx_sw(int *former_context, int *new_context);
 typedef enum {
   RUNNING,
   WAITING,
-  SLEEPING
+  SLEEPING,
+  DYING
 } proc_state;
 
 /**
@@ -74,6 +75,14 @@ struct process *tail_sleeping;
 struct process *head_sleeping;
 
 /**
+ * Linked list of dying process that will be killed by the scheduler.
+ * Head dying is the first process added to the list.
+ * Tail dying is the last process added to the list.
+ */
+struct process *tail_dying;
+struct process *head_dying;
+
+/**
  * Push a sleeping process in the priority queue.
  */
 void push_sleeping(struct process **proc);
@@ -82,6 +91,11 @@ void push_sleeping(struct process **proc);
  * Pushes the process in the waiting queue.
  */
 void push_waiting(struct process **proc);
+
+/**
+ * Pushes the process in the dying list.
+ */
+void push_dying(struct process **proc);
 
 /**
  * Pops the head of a queue.
@@ -104,14 +118,14 @@ void init_process(void);
 int get_pid(void);
 
 /**
- * Returns the process if found in the given queue with the given pid.
- */
-struct process* get_process_in(struct process **queue, int32_t pid);
-
-/**
  * Get the current process name
  */
 char* get_name(void);
+
+/**
+ * Creates a process with a given pid and a name
+ */
+int32_t create_process(void (*function)(void), char *name);
 
 /**
  * Prints the pid, the name and the state of a process.
@@ -119,8 +133,8 @@ char* get_name(void);
 void print_process(struct process *proc);
 
 /**
- * Creates a process with a given pid and a name
+ * Ends a process.
  */
-int32_t create_process(void (*function)(void), char *name);
+void end_process(void);
 
 #endif
