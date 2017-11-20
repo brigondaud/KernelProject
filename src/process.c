@@ -13,19 +13,18 @@ void idle()
 
 void proc1(void)
 {
-  //  int32_t i = 0; i < 2; i++
-  for (;;) {
-    printf("[temps = %u] processus %s pid = %i\n", get_time(),
+  for (int32_t i = 0; i < 2; i++) {
+    printf("\n[temps = %u] processus %s pid = %i\n", get_time(),
     get_name(), get_pid());
     sleep(2);
     }
-  // end_process();
+  end_process();
 }
 
 void proc2(void)
 {
   for (;;) {
-    printf("[temps = %u] processus %s pid = %i\n", get_time(),
+    printf("\n[temps = %u] processus %s pid = %i\n", get_time(),
     get_name(), get_pid());
     sleep(3);
   }
@@ -33,7 +32,7 @@ void proc2(void)
 void proc3(void)
 {
   for (;;) {
-    printf("[temps = %u] processus %s pid = %i\n", get_time(),
+    printf("\n[temps = %u] processus %s pid = %i\n", get_time(),
     get_name(), get_pid());
     sleep(5);
   }
@@ -110,10 +109,26 @@ void sleep(uint32_t sec)
 
 void end_process(void)
 {
+  /* Kills all the dying processes */
+  kill_process();
   /* The working process must be added to the the list of dying process and will
   be killed during the next scheduling. */
   working_process->state = DYING;
   push_dying(&working_process);
+  /* Change to another process */
+  schedule();
+}
+
+void kill_process(void)
+{
+  /* Kill definitely all the dying processes (free them) */
+  struct process *dying = head_dying;
+  struct process *temp = dying;
+  while(temp) {
+    temp = dying->next;
+    free(dying);
+    dying = temp;
+  }
 }
 
 void push_sleeping(struct process **proc)

@@ -137,4 +137,9 @@ void print_process(struct process *proc);
  */
 void end_process(void);
 
+/**
+ * Kills all the dying process
+ */
+void kill_process(void);
+
 #endif
