@@ -58,6 +58,11 @@ struct process *working_process;
 int32_t last_pid;
 
 /**
+ * Tells if the dying process list can be flushed for this schedule call.
+ */
+int8_t flush_dying;
+
+/**
  * Put a process in sleep for sec seconds.
  */
 void sleep(uint32_t sec);

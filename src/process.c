@@ -109,13 +109,12 @@ void sleep(uint32_t sec)
 
 void end_process(void)
 {
-  /* Kills all the dying processes */
-  kill_process();
   /* The working process must be added to the the list of dying process and will
   be killed during the next scheduling. */
   working_process->state = DYING;
   push_dying(&working_process);
-  /* Change to another process */
+  /* Change to another process but flushing at the next schedule call. */
+  flush_dying = 0;
   schedule();
 }
 
