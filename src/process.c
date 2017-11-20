@@ -18,7 +18,6 @@ void proc1(void)
     get_name(), get_pid());
     sleep(2);
     }
-  end_process();
 }
 
 void proc2(void)
@@ -58,8 +57,9 @@ int32_t create_process(void (*code)(void), char *name)
   proc->pid = last_pid;
   strcpy(proc->name, name);
   proc->state = WAITING;
-  proc->execution_stack[STACK_SIZE-1] = (int32_t)code;
-  proc->register_save[ESP_IDX] = (int32_t)(&proc->execution_stack[STACK_SIZE-1]);
+  proc->execution_stack[STACK_SIZE-2] = (int32_t)code;
+  proc->execution_stack[STACK_SIZE-1] = (int32_t)end_process;
+  proc->register_save[ESP_IDX] = (int32_t)(&proc->execution_stack[STACK_SIZE-2]);
   proc->waking_time = -1;
 
   /* Push the created process in the waiting queue. */
