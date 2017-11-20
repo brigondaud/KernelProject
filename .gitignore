@@ -4,3 +4,7 @@ src/*.o
 #The kernel
 src/kernel.bin
 \.vscode/settings\.json
+
+
+#Pdf files
+*.pdf
