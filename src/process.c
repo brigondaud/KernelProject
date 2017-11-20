@@ -5,6 +5,7 @@ void idle()
 {
   for (;;) {
     sti();
+    printf(".");
     hlt();
     cli();
   }
@@ -56,53 +57,48 @@ void sleep(uint32_t sec)
 
 void push_sleeping(struct process **proc)
 {
-  struct process *current = tail_sleeping;
+  struct process *current = head_sleeping;
   if(current == NULL) {
     tail_sleeping = *proc;
     head_sleeping = *proc;
-  } else {
-    struct process *prec = current;
-    while(current != NULL && (*proc)->waking_time < current->waking_time) {
-      prec = current;
-      current = current->next;
-    }
-    prec->next = *proc;
-    if (!current) {
-      head_sleeping = *proc;
-      head_sleeping->next = NULL;
-    } else {
-      (*proc)->next = current;
-      if (current == tail_sleeping) /* If proc is inserted in tail. */
-        tail_sleeping = *proc;
-    }
+    return;
   }
+
+  if((*proc)->waking_time < head_sleeping->waking_time) {
+    head_sleeping = *proc;
+    (*proc)->next = current;
+    return;
+  }
+
+  while(current != tail_sleeping && (*proc)->waking_time > current->waking_time) {
+    current = current->next;
+  }
+
+  current->next = *proc;
+  if (current == tail_sleeping) tail_sleeping = *proc;
 }
 
 void push_waiting(struct process **proc)
-{
-  (*proc)->next = tail_waiting;
+{ 
+  if(!head_waiting) head_waiting = *proc;
+  if(tail_waiting) tail_waiting->next = *proc;
   tail_waiting = *proc;
-  if(!head_waiting)
-    head_waiting = *proc;
 }
 
 struct process* pop(struct process **tail, struct process **head)
 {
-  struct process *proc = NULL;
-  if (*head == *tail) {
-    proc = *head;
-    *head = NULL;
-    *tail = NULL;
-  } else {
-    struct process *current = *tail;
-    while (current->next != *head) {
-      current = current->next;
-    }
-    proc = *head;
-    current->next = NULL;
-    *head = current;
+  struct process *proc = *head;
+  
+  if(!*head) {
+    return NULL;
   }
-  return proc;
+
+  *head = (*head)->next;
+  if(!*head) {
+    *tail = NULL; 
+  }
+
+  return proc;  
 }
 
 int32_t create_process(void (*code)(void), char *name)
@@ -144,11 +140,13 @@ void init_process(void)
       sprintf(name, "idle");
     }
     else {
-      sprintf(name, "proc%d", i+1);
+      sprintf(name, "proc%d", i);
     }
     create_process(process_code[i], name);
   }
-  working_process = get_process_in(&tail_waiting, 0);
+
+  /* Idle as initial working process */
+  working_process = pop(&tail_waiting, &head_waiting);
 }
 
 struct process* get_process_in(struct process **queue, int32_t pid)

@@ -14,6 +14,8 @@ void kernel_start(void)
 
   pit_init();
 
+  erase_screen();
+
   /* Init all the processes that will be executed. */
   init_process();
 
