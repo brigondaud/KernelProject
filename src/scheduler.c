@@ -7,8 +7,11 @@
 void schedule(void)
 {
   /* Kills all the dying processes */
-  if (flush_dying) kill_process();
-  else flush_dying = 1;
+  if (flush_dying){
+    kill_process();
+  } else {
+    flush_dying = 1;
+  }
 
   /* Move all the awaken processes to the waiting process queue. */
   struct process *sleeping;

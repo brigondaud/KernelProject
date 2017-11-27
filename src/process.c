@@ -22,7 +22,7 @@ void proc1(void)
 
 void proc2(void)
 {
-  for (;;) {
+  for (int32_t i = 0; i < 2; i++) {
     printf("\n[temps = %u] processus %s pid = %i\n", get_time(),
     get_name(), get_pid());
     sleep(3);
@@ -30,7 +30,7 @@ void proc2(void)
 }
 void proc3(void)
 {
-  for (;;) {
+  for (int32_t i = 0; i < 2; i++) {
     printf("\n[temps = %u] processus %s pid = %i\n", get_time(),
     get_name(), get_pid());
     sleep(5);
@@ -121,7 +121,7 @@ void end_process(void)
 void kill_process(void)
 {
   /* Kill definitely all the dying processes (free them) */
-  struct process *dying = head_dying;
+  struct process *dying = pop(&tail_dying, &head_dying);
   struct process *temp = dying;
   while(temp) {
     temp = dying->next;
